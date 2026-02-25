@@ -652,7 +652,7 @@ mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { ham.c
 /* ── ACTIVE NAV ON SCROLL ── */
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-links a');
-new IntersectionObserver(entries => {
+const navObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       navLinks.forEach(a => a.classList.remove('active'));
@@ -660,20 +660,8 @@ new IntersectionObserver(entries => {
       if (a) a.classList.add('active');
     }
   });
-}, { rootMargin: '-40% 0px -50% 0px' }).observe.call({ observe: el => sections.forEach(s => new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { navLinks.forEach(a => a.classList.remove('active')); const a = document.querySelector(`.nav-links a[href="#${e.target.id}"]`); if (a) a.classList.add('active'); }});
-}, { rootMargin: '-40% 0px -50% 0px' }).observe(s)) });
-sections.forEach(s => {
-  new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        navLinks.forEach(a => a.classList.remove('active'));
-        const a = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
-        if (a) a.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-40% 0px -50% 0px' }).observe(s);
-});
+}, { rootMargin: '-40% 0px -50% 0px' });
+sections.forEach(s => navObserver.observe(s));
 
 /* ── CURSOR GLOW ── */
 const glow = document.getElementById('cursor-glow');
