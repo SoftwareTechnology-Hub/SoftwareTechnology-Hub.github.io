@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -88,5 +88,756 @@
         &copy; SoftwareTechnology-Hub. All rights reserved.
     </footer>
 
+</body>
+</html>
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftwareTechnology-Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #00f5ff;
+    --neon2: #7b2ff7;
+    --neon3: #ff2d78;
+    --bg: #020814;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(0,245,255,0.15);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: #e0f4ff;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── CANVAS BACKGROUND ── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── GRID OVERLAY ── */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(2,8,20,0.6);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    background: linear-gradient(90deg, var(--neon), var(--neon2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: rgba(224,244,255,0.7);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: relative;
+    transition: color 0.3s;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--neon);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .nav-links a:hover { color: var(--neon); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-right {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 8px 18px;
+    gap: 8px;
+    transition: border-color 0.3s;
+  }
+  .search-wrap:focus-within { border-color: var(--neon); }
+  .search-wrap input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #e0f4ff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    width: 130px;
+  }
+  .search-wrap svg { opacity: 0.5; }
+
+  .btn-signup {
+    background: linear-gradient(135deg, var(--neon2), var(--neon3));
+    border: none;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 10px 22px;
+    border-radius: 40px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 20px rgba(123,47,247,0.4);
+  }
+  .btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(123,47,247,0.7);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,255,0.06);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.5); }
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 7vw, 6.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+
+  .hero-title .line1 {
+    display: block;
+    color: rgba(224,244,255,0.9);
+  }
+
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--neon), var(--neon2), var(--neon3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0,245,255,0.5));
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: rgba(224,244,255,0.5);
+    letter-spacing: 0.06em;
+    max-width: 540px;
+    margin: 24px auto 48px;
+    line-height: 1.7;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--neon2), var(--neon));
+    border: none;
+    color: #020814;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 16px 36px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 0 30px rgba(0,245,255,0.3), 0 8px 30px rgba(0,0,0,0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 50px rgba(0,245,255,0.5), 0 12px 40px rgba(0,0,0,0.5);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(0,245,255,0.3);
+    color: var(--neon);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 16px 36px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, transform 0.2s;
+  }
+  .btn-ghost:hover {
+    background: rgba(0,245,255,0.08);
+    border-color: var(--neon);
+    transform: translateY(-3px);
+  }
+
+  /* ── 3D FLOATING CARDS ── */
+  .floating-cards {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .f-card {
+    position: absolute;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    padding: 18px 22px;
+    animation: float linear infinite;
+    font-size: 0.8rem;
+  }
+
+  .f-card:nth-child(1) { top: 18%; left: 5%; animation-duration: 8s; animation-delay: 0s; }
+  .f-card:nth-child(2) { top: 30%; right: 6%; animation-duration: 10s; animation-delay: -3s; }
+  .f-card:nth-child(3) { bottom: 25%; left: 7%; animation-duration: 9s; animation-delay: -5s; }
+  .f-card:nth-child(4) { bottom: 20%; right: 5%; animation-duration: 11s; animation-delay: -2s; }
+
+  .f-card .card-label {
+    color: var(--neon);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+  .f-card .card-val {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-18px) rotate(1deg); }
+  }
+
+  /* ── SERVICES SECTION ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 60px;
+  }
+
+  .section-tag {
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    margin-bottom: 64px;
+    color: #e0f4ff;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .service-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 36px 32px;
+    backdrop-filter: blur(12px);
+    transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), border-color 0.3s, box-shadow 0.4s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: rgba(0,245,255,0.35);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,245,255,0.1);
+  }
+  .service-card:hover::before { opacity: 1; }
+
+  .service-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    font-size: 1.5rem;
+  }
+
+  .icon-cyan { background: rgba(0,245,255,0.1); border: 1px solid rgba(0,245,255,0.2); }
+  .icon-purple { background: rgba(123,47,247,0.1); border: 1px solid rgba(123,47,247,0.2); }
+  .icon-pink { background: rgba(255,45,120,0.1); border: 1px solid rgba(255,45,120,0.2); }
+  .icon-gold { background: rgba(255,196,0,0.1); border: 1px solid rgba(255,196,0,0.2); }
+
+  .service-card h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .service-card p {
+    font-size: 0.95rem;
+    color: rgba(224,244,255,0.5);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    padding: 60px;
+    border-top: 1px solid rgba(0,245,255,0.08);
+    border-bottom: 1px solid rgba(0,245,255,0.08);
+    background: rgba(0,245,255,0.02);
+  }
+
+  .stats-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--neon), var(--neon2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: rgba(224,244,255,0.45);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 60px;
+    color: rgba(224,244,255,0.25);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    border-top: 1px solid rgba(0,245,255,0.06);
+  }
+
+  footer span {
+    color: var(--neon);
+    opacity: 0.6;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── GLOW ORBS ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.15;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--neon2); top: -200px; left: -100px; }
+  .orb2 { width: 500px; height: 500px; background: var(--neon); bottom: -100px; right: -100px; }
+  .orb3 { width: 400px; height: 400px; background: var(--neon3); top: 40%; left: 40%; transform: translate(-50%,-50%); opacity: 0.06; }
+
+  /* ── CURSOR GLOW ── */
+  .cursor-glow {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,245,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s linear;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .section { padding: 70px 24px; }
+    .stats-bar { padding: 40px 24px; }
+    footer { padding: 30px 24px; }
+    .f-card { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background elements -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="grid-overlay"></div>
+<div class="cursor-glow" id="cursor-glow"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#">ST-HUB</a>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Contact Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search...">
+    </div>
+    <button class="btn-signup">Sign Up</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- Floating 3D Cards -->
+  <div class="floating-cards">
+    <div class="f-card">
+      <div class="card-label">Active Users</div>
+      <div class="card-val">128K+</div>
+    </div>
+    <div class="f-card">
+      <div class="card-label">Uptime</div>
+      <div class="card-val">99.9%</div>
+    </div>
+    <div class="f-card">
+      <div class="card-label">Projects Live</div>
+      <div class="card-val">4,800</div>
+    </div>
+    <div class="f-card">
+      <div class="card-label">AI Models</div>
+      <div class="card-val">32 ↑</div>
+    </div>
+  </div>
+
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Next-Gen Tech Platform
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">Welcome To</span>
+    <span class="line2">SoftwareTechnology-Hub</span>
+  </h1>
+
+  <p class="hero-sub">
+    Your gateway to cutting-edge software solutions, AI-powered tools, and a thriving developer ecosystem.
+  </p>
+
+  <div class="hero-ctas">
+    <button class="btn-primary">Get Started</button>
+    <button class="btn-ghost">Explore Services</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Tools Available</div></div>
+    <div class="stat"><div class="stat-num">128K</div><div class="stat-label">Active Developers</div></div>
+    <div class="stat"><div class="stat-num">99.9%</div><div class="stat-label">Platform Uptime</div></div>
+    <div class="stat"><div class="stat-num">4.8★</div><div class="stat-label">User Rating</div></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="section">
+  <div class="section-tag">What We Offer</div>
+  <h2 class="section-title">Our Services</h2>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon icon-cyan">⚡</div>
+      <h3>Cloud Infrastructure</h3>
+      <p>Scalable, secure cloud environments engineered for peak performance at any workload.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-purple">🤖</div>
+      <h3>AI & Machine Learning</h3>
+      <p>Deploy intelligent models and automate complex workflows with enterprise-grade AI APIs.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-pink">🛡️</div>
+      <h3>Cybersecurity Suite</h3>
+      <p>End-to-end protection with real-time threat detection and zero-trust architecture.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-gold">🚀</div>
+      <h3>DevOps Automation</h3>
+      <p>Streamline CI/CD pipelines and infrastructure-as-code for blazing fast releases.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  © <span>SoftwareTechnology-Hub</span>. All rights reserved.
+</footer>
+
+<script>
+// ── CURSOR GLOW ──
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top = e.clientY + 'px';
+});
+
+// ── CANVAS PARTICLE NETWORK ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.r = Math.random() * 1.5 + 0.5;
+    this.alpha = Math.random() * 0.5 + 0.1;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > W) this.vx *= -1;
+    if (this.y < 0 || this.y > H) this.vy *= -1;
+  }
+}
+
+function init() {
+  resize();
+  particles = Array.from({length: 90}, () => new Particle());
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // Lines
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i+1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 140) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(0,245,255,${0.12*(1-dist/140)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  // Dots
+  particles.forEach(p => {
+    p.update();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(0,245,255,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', () => { resize(); particles.forEach(p => p.reset()); });
+init();
+draw();
+
+// ── CARD 3D TILT ──
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `translateY(-10px) scale(1.02) rotateX(${-y*10}deg) rotateY(${x*10}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275), border-color 0.3s, box-shadow 0.4s';
+  });
+  card.addEventListener('mouseenter', () => {
+    card.style.transition = 'transform 0.1s linear, border-color 0.3s, box-shadow 0.4s';
+  });
+});
+
+// ── COUNTER ANIMATION ──
+function animateCount(el, target, suffix='') {
+  let start = 0;
+  const isDecimal = target !== Math.floor(target);
+  const duration = 2000;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = isDecimal ? (eased * target).toFixed(1) : Math.floor(eased * target);
+    el.textContent = val + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const stats = [
+        { el: document.querySelectorAll('.stat-num')[0], target: 500, suffix: '+' },
+        { el: document.querySelectorAll('.stat-num')[1], target: 128, suffix: 'K' },
+        { el: document.querySelectorAll('.stat-num')[2], target: 99.9, suffix: '%' },
+        { el: document.querySelectorAll('.stat-num')[3], target: 4.8, suffix: '★' },
+      ];
+      stats.forEach(s => animateCount(s.el, s.target, s.suffix));
+      observer.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+
+observer.observe(document.querySelector('.stats-bar'));
+</script>
 </body>
 </html>
