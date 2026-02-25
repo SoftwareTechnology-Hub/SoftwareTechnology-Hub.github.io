@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!-- <!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -838,6 +838,303 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 
 observer.observe(document.querySelector('.stats-bar'));
+</script>
+</body>
+</html>
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftwareTechnology-Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00e5ff;
+    --blue: #2979ff;
+    --bg: #030c18;
+    --surface: rgba(255,255,255,0.03);
+    --border: rgba(0,229,255,0.1);
+    --text: #ddeeff;
+    --muted: rgba(221,238,255,0.4);
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; min-height: 100vh; }
+
+  #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 70px 70px;
+  }
+  .orb { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
+  .orb1 { width: 700px; height: 700px; background: #0d47a1; top: -250px; left: -150px; opacity: 0.18; }
+  .orb2 { width: 500px; height: 500px; background: #006064; bottom: -100px; right: -100px; opacity: 0.14; }
+  .cursor-glow { position: fixed; width: 450px; height: 450px; border-radius: 50%; background: radial-gradient(circle, rgba(0,229,255,0.04) 0%, transparent 70%); pointer-events: none; z-index: 0; transform: translate(-50%, -50%); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 60px;
+    background: rgba(3,12,24,0.75); backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(0,229,255,0.07);
+  }
+  .nav-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1rem; letter-spacing: 0.1em; background: linear-gradient(90deg, var(--cyan), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; position: relative; transition: color 0.3s; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px; background: var(--cyan); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-right { display: flex; gap: 12px; align-items: center; }
+  .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 40px; padding: 8px 18px; transition: border-color 0.3s; }
+  .search-wrap:focus-within { border-color: var(--cyan); }
+  .search-wrap input { background: none; border: none; outline: none; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.88rem; width: 130px; }
+  .btn-signup { background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; color: #030c18; font-family: 'Orbitron', monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; padding: 10px 22px; border-radius: 40px; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; box-shadow: 0 0 20px rgba(41,121,255,0.3); }
+  .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(41,121,255,0.55); }
+
+  /* HERO */
+  .hero { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 40px 80px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.18); border-radius: 40px; padding: 8px 22px; font-size: 0.75rem; letter-spacing: 0.18em; color: var(--cyan); text-transform: uppercase; margin-bottom: 36px; animation: fadeUp 0.8s ease both; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(1.6)} }
+  .hero-title { font-family: 'Orbitron', monospace; font-weight: 900; font-size: clamp(2.6rem, 6.5vw, 6rem); line-height: 1.05; margin-bottom: 8px; animation: fadeUp 0.8s 0.15s ease both; }
+  .hero-title .line1 { display: block; color: rgba(221,238,255,0.88); }
+  .hero-title .line2 { display: block; background: linear-gradient(90deg, var(--cyan) 0%, var(--blue) 60%, #7986cb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 28px rgba(0,229,255,0.35)); }
+  .hero-sub { font-size: 1.1rem; font-weight: 300; color: var(--muted); letter-spacing: 0.05em; max-width: 520px; margin: 26px auto 48px; line-height: 1.75; animation: fadeUp 0.8s 0.3s ease both; }
+  .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.8s 0.45s ease both; }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none; color: #030c18; font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; padding: 16px 38px; border-radius: 50px; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; box-shadow: 0 0 30px rgba(41,121,255,0.3), 0 8px 30px rgba(0,0,0,0.4); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(41,121,255,0.5), 0 12px 40px rgba(0,0,0,0.5); }
+  .btn-ghost { background: transparent; border: 1px solid rgba(0,229,255,0.25); color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; padding: 16px 38px; border-radius: 50px; cursor: pointer; transition: background 0.3s, border-color 0.3s, transform 0.2s; }
+  .btn-ghost:hover { background: rgba(0,229,255,0.06); border-color: var(--cyan); transform: translateY(-3px); }
+
+  /* FLOATING CARDS */
+  .floating-cards { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .f-card { position: absolute; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,229,255,0.1); border-radius: 16px; backdrop-filter: blur(12px); padding: 16px 22px; animation: float linear infinite; }
+  .f-card:nth-child(1){top:20%;left:5%;animation-duration:8s;}
+  .f-card:nth-child(2){top:28%;right:6%;animation-duration:10s;animation-delay:-3s;}
+  .f-card:nth-child(3){bottom:28%;left:7%;animation-duration:9s;animation-delay:-5s;}
+  .f-card:nth-child(4){bottom:22%;right:5%;animation-duration:11s;animation-delay:-2s;}
+  .f-card .card-label { color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 0.6rem; letter-spacing: 0.1em; margin-bottom: 4px; opacity: 0.65; }
+  .f-card .card-val { font-size: 1.35rem; font-weight: 600; color: #fff; }
+  @keyframes float { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-18px) rotate(1deg)} }
+
+  /* STATS */
+  .stats-bar { position: relative; z-index: 1; padding: 60px; border-top: 1px solid rgba(0,229,255,0.06); border-bottom: 1px solid rgba(0,229,255,0.06); background: rgba(0,229,255,0.015); }
+  .stats-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 40px; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Orbitron', monospace; font-size: 2.6rem; font-weight: 900; background: linear-gradient(135deg, var(--cyan), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+  .stat-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.12em; margin-top: 8px; text-transform: uppercase; }
+
+  /* SERVICES */
+  .section { position: relative; z-index: 1; padding: 100px 60px; }
+  .section-tag { text-align: center; font-family: 'Orbitron', monospace; font-size: 0.68rem; letter-spacing: 0.22em; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; }
+  .section-title { text-align: center; font-family: 'Orbitron', monospace; font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 900; margin-bottom: 64px; color: var(--text); }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; max-width: 1200px; margin: 0 auto; }
+
+  .service-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 38px 32px;
+    backdrop-filter: blur(14px); transition: border-color 0.3s, box-shadow 0.4s;
+    cursor: default; position: relative; overflow: hidden;
+  }
+  .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0; transition: opacity 0.4s; }
+  .service-card:hover { border-color: rgba(0,229,255,0.28); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.07); }
+  .service-card:hover::before { opacity: 1; }
+
+  .service-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.14);
+  }
+  .service-icon svg { width: 22px; height: 22px; stroke: var(--cyan); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  .service-card h3 { font-family: 'Orbitron', monospace; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 14px; color: #fff; }
+  .service-card p { font-size: 0.95rem; color: var(--muted); line-height: 1.75; font-weight: 300; }
+
+  /* FOOTER */
+  footer { position: relative; z-index: 1; text-align: center; padding: 38px 60px; color: rgba(221,238,255,0.2); font-size: 0.8rem; letter-spacing: 0.1em; border-top: 1px solid rgba(0,229,255,0.05); }
+  footer span { color: var(--cyan); opacity: 0.5; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+  @media(max-width:768px){
+    nav{padding:16px 20px;} .nav-links{display:none;}
+    .section{padding:70px 20px;} .stats-bar{padding:40px 20px;}
+    footer{padding:30px 20px;} .f-card{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="grid-overlay"></div>
+<div class="cursor-glow" id="cursor-glow"></div>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="#">ST-HUB</a>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Contact Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(221,238,255,0.4)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search...">
+    </div>
+    <button class="btn-signup">Sign Up</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="floating-cards">
+    <div class="f-card"><div class="card-label">Active Users</div><div class="card-val">128K+</div></div>
+    <div class="f-card"><div class="card-label">Uptime</div><div class="card-val">99.9%</div></div>
+    <div class="f-card"><div class="card-label">Projects Live</div><div class="card-val">4,800</div></div>
+    <div class="f-card"><div class="card-label">AI Models</div><div class="card-val">32</div></div>
+  </div>
+  <div class="hero-badge"><span class="badge-dot"></span>Next-Gen Tech Platform</div>
+  <h1 class="hero-title">
+    <span class="line1">Welcome To</span>
+    <span class="line2">SoftwareTechnology-Hub</span>
+  </h1>
+  <p class="hero-sub">Your gateway to cutting-edge software solutions, AI-powered tools, and a thriving developer ecosystem built for scale.</p>
+  <div class="hero-ctas">
+    <button class="btn-primary">Get Started</button>
+    <button class="btn-ghost">Explore Services</button>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num" data-target="500" data-suffix="+">0</div><div class="stat-label">Tools Available</div></div>
+    <div class="stat"><div class="stat-num" data-target="128" data-suffix="K">0</div><div class="stat-label">Active Developers</div></div>
+    <div class="stat"><div class="stat-num" data-target="99.9" data-suffix="%" data-decimal="1">0</div><div class="stat-label">Platform Uptime</div></div>
+    <div class="stat"><div class="stat-num" data-target="4.8" data-suffix="★" data-decimal="1">0</div><div class="stat-label">User Rating</div></div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-tag">What We Offer</div>
+  <h2 class="section-title">Our Services</h2>
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- Cloud -->
+        <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+      </div>
+      <h3>Cloud Infrastructure</h3>
+      <p>Scalable, secure cloud environments engineered for peak performance across any workload or region.</p>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- CPU / AI -->
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg>
+      </div>
+      <h3>AI & Machine Learning</h3>
+      <p>Deploy intelligent models and automate complex workflows with enterprise-grade AI APIs and pipelines.</p>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- Shield -->
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
+      <h3>Cybersecurity Suite</h3>
+      <p>End-to-end protection with real-time threat detection, zero-trust architecture, and compliance tools.</p>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- GitMerge / DevOps -->
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+      </div>
+      <h3>DevOps Automation</h3>
+      <p>Streamline CI/CD pipelines and infrastructure-as-code for rapid, reliable software delivery at scale.</p>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- Bar chart -->
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+      </div>
+      <h3>Analytics & Insights</h3>
+      <p>Transform raw data into actionable intelligence with real-time dashboards and custom reporting.</p>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <!-- Link / API -->
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <h3>API Platform</h3>
+      <p>Connect any system with our robust API gateway — supporting REST, GraphQL, and gRPC protocols.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>© <span>SoftwareTechnology-Hub</span>. All rights reserved.</footer>
+
+<script>
+// Cursor glow
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => { glow.style.left = e.clientX+'px'; glow.style.top = e.clientY+'px'; });
+
+// Canvas
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles;
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+class Particle {
+  constructor(){ this.reset(); }
+  reset(){ this.x=Math.random()*W; this.y=Math.random()*H; this.vx=(Math.random()-.5)*.35; this.vy=(Math.random()-.5)*.35; this.r=Math.random()*1.2+.4; this.alpha=Math.random()*.4+.1; }
+  update(){ this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>W)this.vx*=-1; if(this.y<0||this.y>H)this.vy*=-1; }
+}
+function init(){ resize(); particles=Array.from({length:80},()=>new Particle()); }
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+    if(d<130){ ctx.beginPath(); ctx.strokeStyle=`rgba(0,229,255,${.1*(1-d/130)})`; ctx.lineWidth=.5; ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y); ctx.stroke(); }
+  }
+  particles.forEach(p=>{ p.update(); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(0,229,255,${p.alpha})`; ctx.fill(); });
+  requestAnimationFrame(draw);
+}
+window.addEventListener('resize',()=>{ resize(); particles.forEach(p=>p.reset()); });
+init(); draw();
+
+// 3D tilt
+document.querySelectorAll('.service-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    card.style.transition='border-color .3s,box-shadow .4s';
+    card.style.transform=`perspective(600px) rotateX(${-y*9}deg) rotateY(${x*9}deg) translateY(-8px) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transition='transform .5s cubic-bezier(.175,.885,.32,1.275),border-color .3s,box-shadow .4s';
+    card.style.transform='';
+  });
+});
+
+// Counter
+function animateCount(el,target,suffix,dec){
+  let start=null; const dur=1800;
+  const step=ts=>{ if(!start)start=ts; const p=Math.min((ts-start)/dur,1); const e=1-Math.pow(1-p,3); const v=e*target; el.textContent=(dec?v.toFixed(dec):Math.floor(v))+suffix; if(p<1)requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{ if(entry.isIntersecting){ document.querySelectorAll('.stat-num').forEach(el=>{ animateCount(el,parseFloat(el.dataset.target),el.dataset.suffix||'',el.dataset.decimal?parseInt(el.dataset.decimal):0); }); obs.disconnect(); }});
+},{threshold:.4});
+obs.observe(document.querySelector('.stats-bar'));
 </script>
 </body>
 </html>
